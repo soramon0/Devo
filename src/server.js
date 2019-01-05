@@ -13,6 +13,7 @@ import volleyball from 'volleyball'
 import index from './routes'
 import notFound from './routes/notFound'
 import { users, profile, posts } from './routes/api'
+import { errorRespone } from './validation/ErrorHelper'
 
 // ENV Vars
 const { DB_URI, PORT, NODE_ENV } = process.env
@@ -37,6 +38,13 @@ connect(DB_URI, { useNewUrlParser: true })
     console.log('- Database Connected...')
     const port = PORT || 3000
     app.listen(port, () => console.log(`- Server Started On http://localhost:${port}`))
+
+    app.use((err, _req, res, next) => {
+      if (err.status === 400) {
+        return errorRespone(err.name, err.message, res)
+      }
+      return next(err)
+    })
 
     // Routes
     app.use('/', index)

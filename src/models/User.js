@@ -2,32 +2,9 @@ import { Schema, model } from 'mongoose'
 import { hash, compare } from 'bcryptjs'
 import { url } from 'gravatar'
 
-const userSchema = new Schema({
-  name: {
-    type: String,
-    required: true,
-    trim: true,
-    minlength: 3,
-    maxlength: 30,
-    lowercase: true
-  },
-  email: {
-    type: String,
-    required: true,
-    trim: true
-  },
-  password: {
-    type: String,
-    required: true
-  },
-  avatar: {
-    type: String
-  },
-  date: {
-    type: Date,
-    default: Date.now
-  }
-}, { timestamps: true })
+import { user } from './schema'
+
+const userSchema = new Schema(user, { timestamps: true })
 
 userSchema.pre('save', async function () {
   if (this.isModified('password')) {

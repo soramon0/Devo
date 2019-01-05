@@ -20,6 +20,7 @@ package-lock.json
 *.gz
 *.lock
 .env
+/log
 
 
 # Coveralls

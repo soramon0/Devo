@@ -1,6 +1,7 @@
 import passport from 'passport'
 import { Strategy, ExtractJwt } from 'passport-jwt'
 import User from '../models/User'
+import { removeField } from '../utils/profile'
 
 const opts = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -12,12 +13,7 @@ export default () => {
     const user = await User.findById(id)
     if (user) {
       // Remove password from req.user
-      const currentUser = Object.keys(user._doc).reduce((object, key) => {
-        if (key !== 'password') {
-          object[key] = user[key]
-        }
-        return object
-      }, {})
+      const currentUser = removeField(user._doc, 'password')
       return done(null, currentUser)
     }
     return done(null, false)
