@@ -31,6 +31,6 @@ userSchema.methods.comparePassword = async function (InputPassword) {
   return valid
 }
 
-const User = model('user', userSchema)
+const User = model('User', userSchema)
 
 export default User

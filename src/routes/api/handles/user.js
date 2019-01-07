@@ -4,6 +4,7 @@ import User from '../../../models/User'
 // Load Input Validatoin
 import { ensureRegister, ensureLogin } from '../../../validation'
 import { errorRespone } from '../../../validation/ErrorHelper'
+import { removeField } from '../../../utils/removeField'
 
 // Handles register
 export const register = async (req, res) => {
@@ -14,11 +15,12 @@ export const register = async (req, res) => {
     // Check if user exists
     const { name, email, password } = req.body
     const user = await User.findOne({ email })
-    if (user) return errorRespone('register', 'Invalid register', res)
+    if (user) return errorRespone('register', 'Invalid register', res, 400)
 
     // Register User
     const newUser = await new User({ name, email, password }).save()
-    res.json(newUser)
+    const registeredUser = removeField(newUser._doc, 'password')
+    res.json(registeredUser)
   } catch (err) {
     return errorRespone(err.name, err.message, res)
   }
@@ -36,11 +38,11 @@ export const login = async (req, res) => {
     const user = await User.findOne({ email })
 
     // Check for user
-    if (!user) return errorRespone('login', 'Invalid login', res)
+    if (!user) return errorRespone('login', 'Invalid login', res, 400)
 
     // Check for password
     const valid = await user.comparePassword(password)
-    if (!valid) return errorRespone('login', 'Invalid login', res)
+    if (!valid) return errorRespone('login', 'Invalid login', res, 400)
     // User is Valid
 
     // Create token payload
@@ -48,11 +50,11 @@ export const login = async (req, res) => {
 
     // Sign Token
     sign(payload, process.env.secretOrKey, { expiresIn: 3600 * 3 }, (err, token) => {
-      if (err) return err
+      if (err) errorRespone(err.name, err.message, res, 500)
       res.json({ success: true, token: `Bearer ${token}` })
     })
   } catch (err) {
-    return errorRespone(err.name, err.message, res)
+    return errorRespone(err.name, err.message, res, 500)
   }
 }
 

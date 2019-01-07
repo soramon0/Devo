@@ -16,7 +16,7 @@ export const getCurrentProfile = async (req, res) => {
   }
 }
 
-// Gets Current Profile
+// Gets All Profiles
 export const getAll = async (_req, res) => {
   try {
     const profiles = await Profile.find().limit(6)

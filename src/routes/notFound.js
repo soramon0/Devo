@@ -1,12 +1,12 @@
 import { Router } from 'express'
-import { errorRespone } from '../validation/ErrorHelper';
+import { errorRespone } from '../validation/ErrorHelper'
 const router = Router()
 
-// @route   Get /api/users
-// @desc    Tests users route
+// @route   ALL Methods /*
+// @desc    Return Error response
 // access   Public
-router.get('*', (_req, res) => {
-  return errorRespone('path error', 'The given path is not allowed', res)
+router.all('*', ({ method, url }, res) => {
+  errorRespone('request', `the requested method ${method} on path ${url} is not handled`, res)
 })
 
 export default router

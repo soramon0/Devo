@@ -1,6 +1,6 @@
-export const errorRespone = (errorName, errorMessage, res) => {
-  res.status(404).json({
-    errors: {
+export const errorRespone = (errorName, errorMessage, res, statusCode = 404) => {
+  res.status(statusCode).json({
+    error: {
       [errorName]: errorMessage
     }
   })

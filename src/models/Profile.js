@@ -8,6 +8,10 @@ profileSchema.pre('findOne', function () {
   this.populate('user', ['name', 'avatar'])
 })
 
-const Profile = model('profile', profileSchema)
+profileSchema.pre('find', function () {
+  this.populate('user', ['name', 'avatar'])
+})
+
+const Profile = model('Profile', profileSchema)
 
 export default Profile

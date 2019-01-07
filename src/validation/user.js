@@ -1,8 +1,6 @@
 import * as yup from 'yup'
 
-const name = yup.string().required().min(3).max(30).trim().strict().label('Name')
-const email = yup.string().required().email().label('Email')
-const password = yup.string().required().min(8).max(255).label('Password')
+import { name, email, password } from './fields'
 
 export const ensureRegister = async data => {
   const schema = yup.object().shape({

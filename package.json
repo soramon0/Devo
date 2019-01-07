@@ -32,9 +32,13 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.3",
+    "compression": "^1.7.3",
     "dotenv": "^6.2.0",
     "express": "^4.16.4",
+    "express-timeout-handler": "^2.1.2",
+    "feature-policy": "^0.2.0",
     "gravatar": "^1.8.0",
+    "helmet": "^3.15.0",
     "jsonwebtoken": "^8.4.0",
     "mongoose": "^5.4.2",
     "passport": "^0.4.0",

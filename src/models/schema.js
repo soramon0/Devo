@@ -3,6 +3,7 @@ import { Schema } from 'mongoose'
 const minlength = 3
 const maxlength = 40
 
+// User Schema
 export const user = {
   name: {
     type: String,
@@ -23,17 +24,66 @@ export const user = {
   },
   avatar: {
     type: String
-  },
-  date: {
-    type: Date,
-    default: Date.now
   }
 }
 
+// Post Schema
+export const post = {
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  text: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  name: {
+    type: String,
+    trim: true
+  },
+  avatar: {
+    type: String
+  },
+  likes: [
+    {
+      user: {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+      }
+    }
+  ],
+  comments: [
+    {
+      user: {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+      },
+      text: {
+        type: String,
+        trim: true,
+        required: true
+      },
+      name: {
+        type: String,
+        trim: true
+      },
+      avatar: {
+        type: String
+      },
+      date: {
+        type: Date,
+        default: Date.now
+      }
+    }
+  ]
+}
+
+// Profile Schema
 export const profile = {
   user: {
     type: Schema.Types.ObjectId,
-    ref: 'user'
+    ref: 'User'
   },
   handle: {
     type: String,
@@ -186,9 +236,5 @@ export const profile = {
       type: String,
       trim: true
     }
-  },
-  date: {
-    type: Date,
-    default: Date.now
   }
 }

@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import passport from 'passport'
+import { authenticateWith } from '../../utils/authStrategy'
 
 // Load User Handles
 import {
@@ -20,7 +20,7 @@ const router = Router()
 // @route   GET /api/profile
 // @desc    Get current profile
 // access   Private
-router.get('/', passport.authenticate('jwt', { session: false }), getCurrentProfile)
+router.get('/', authenticateWith('jwt'), getCurrentProfile)
 
 // @route   GET /api/profile/all
 // @desc    Gets an array of profiles
@@ -40,31 +40,31 @@ router.get('/user/:user_id', getById)
 // @route   POST /api/profile
 // @desc    Create or Edit user profile
 // access   Private
-router.post('/', passport.authenticate('jwt', { session: false }), createProfile)
+router.post('/', authenticateWith('jwt'), createProfile)
 
 // @route   POST /api/profile/experience
 // @desc    Add experience
 // access   Private
-router.post('/experience', passport.authenticate('jwt', { session: false }), addExperience)
+router.post('/experience', authenticateWith('jwt'), addExperience)
 
 // @route   DELETE /api/profile/experience/:exp_id
 // @desc    Deletes experience
 // access   Private
-router.delete('/experience/:exp_id', passport.authenticate('jwt', { session: false }), delExperience)
+router.delete('/experience/:exp_id', authenticateWith('jwt'), delExperience)
 
 // @route   POST /api/profile/eduction
 // @desc    Add education
 // access   Private
-router.post('/education', passport.authenticate('jwt', { session: false }), addEducation)
+router.post('/education', authenticateWith('jwt'), addEducation)
 
 // @route   DELETE /api/profile/experience/:edu_id
 // @desc    Deletes education
 // access   Private
-router.delete('/education/:edu_id', passport.authenticate('jwt', { session: false }), delEducation)
+router.delete('/education/:edu_id', authenticateWith('jwt'), delEducation)
 
 // @route   DELETE /api/profile
 // @desc    Deletes education
 // access   Private
-router.delete('/', passport.authenticate('jwt', { session: false }), delProfileAndUser)
+router.delete('/', authenticateWith('jwt'), delProfileAndUser)
 
 export default router

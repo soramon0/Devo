@@ -1,7 +1,7 @@
 import passport from 'passport'
 import { Strategy, ExtractJwt } from 'passport-jwt'
 import User from '../models/User'
-import { removeField } from '../utils/profile'
+import { removeField } from '../utils/removeField'
 
 const opts = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),

@@ -3,7 +3,7 @@ const router = Router()
 
 // Home Page
 router.get('/', (_req, res) => {
-  res.send('<h1>Welcome</h1>')
+  res.json({ message: 'Welcome to Devo\'s API Service' })
 })
 
 export default router

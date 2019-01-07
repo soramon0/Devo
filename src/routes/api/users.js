@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import passport from 'passport'
+import { authenticateWith } from '../../utils/authStrategy'
 
 // Load User Handles
 import { register, login, current } from './handles/user'
@@ -19,6 +19,6 @@ router.post('/login', login)
 // @route   GET /api/users/current
 // @desc    Return current user
 // access   Private
-router.get('/current', passport.authenticate('jwt', { session: false }), current)
+router.get('/current', authenticateWith('jwt'), current)
 
 export default router
