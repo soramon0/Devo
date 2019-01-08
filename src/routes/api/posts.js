@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { authenticateWith } from '../../utils/authStrategy'
-import { addPost, getPostById, getAllPosts, delPost, likePost, unlikePost } from './handles/post'
+import { addPost, getPostById, getAllPosts, delPost, likePost, unlikePost, addPostComment, delPostComment } from './handles/post'
 const router = Router()
 
 // @route   GET /api/posts/all
@@ -31,6 +31,16 @@ router.post('/like/:id', authenticateWith('jwt'), likePost)
 // @route   POST /api/posts/unlike/:id
 // @desc    Remove A Like from Post
 // access   Private
-router.post('/unlike/:id', authenticateWith('jwt'), unlikePost)
+router.delete('/like/:id', authenticateWith('jwt'), unlikePost)
+
+// @route   POST /api/posts/comment/:id
+// @desc    Add a comment to a post
+// access   Private
+router.post('/comment/:id', authenticateWith('jwt'), addPostComment)
+
+// @route   POST /api/posts/comment/:id
+// @desc    Removes a comment from post
+// access   Private
+router.delete('/comment/:id/:comment_id', authenticateWith('jwt'), delPostComment)
 
 export default router

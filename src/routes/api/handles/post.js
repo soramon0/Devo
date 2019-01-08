@@ -1,6 +1,6 @@
 import Post from '../../../models/Post'
 import { errorRespone } from '../../../validation/ErrorHelper'
-import { ensurePost } from '../../../validation'
+import { ensurePost, ensureComment } from '../../../validation'
 
 export const getPostById = async ({ params: { post_id } }, res) => {
   // Check if user_id is a valid Object ID
@@ -90,15 +90,63 @@ export const unlikePost = async ({ params: { id }, user }, res) => {
   try {
     const post = await Post.findById(id)
     if (!post) return errorRespone('no post', 'There is no post with that id', res)
-
-    post.likes.forEach(async (like, index) => {
-      if (like.user.toString() !== user._id.toString()) {
-        return errorRespone('not liked', 'You have not yet liked this post', res, 400)
-      } else {
-        // Get Remove index
+    post.likes.find(async (like, index) => {
+      if (like.user.toString() === user._id.toString()) {
         post.likes.splice(index, 1)
-        const unlikePost = await post.save()
-        res.json(unlikePost)
+        const unlikedPost = await post.save()
+        res.json(unlikedPost)
+      } else {
+        return errorRespone('not liked', 'You have not yet liked this post', res, 400)
+      }
+    })
+  } catch (err) {
+    return errorRespone(err.name, err.message, res)
+  }
+}
+
+export const addPostComment = async ({ params: { id }, body, user }, res) => {
+  // Check if post id is a valid Object ID
+  if (!id.match(/^[a-fA-F0-9]{24}$/)) {
+    return errorRespone('invalid id', 'The provided id is not a valid one', res)
+  }
+  const notValid = await ensureComment(body)
+  if (notValid) return res.status(400).json(notValid)
+  try {
+    const post = await Post.findOne({ _id: id })
+    if (!post) return errorRespone('no post', 'There is no post with that id', res)
+    const comment = {
+      text: body.text,
+      name: post.user.name,
+      avatar: post.avatar,
+      user: user._id
+    }
+    post.comments.unshift(comment)
+    await post.save()
+    res.json(post)
+  } catch (err) {
+    return errorRespone(err.name, err.message, res)
+  }
+}
+
+export const delPostComment = async ({ params: { id, comment_id }, user }, res) => {
+  // Check if user_id is a valid Object ID
+  if (!id.match(/^[a-fA-F0-9]{24}$/) || !comment_id.match(/^[a-fA-F0-9]{24}$/)) {
+    return errorRespone('invalid id', 'The provided id is not a valid one', res)
+  }
+  try {
+    const post = await Post.findById(id)
+    if (!post) return errorRespone('no post', 'There is no post with that id', res)
+    post.comments.find(async (comment, index) => {
+      if (comment.user.toString() === user._id.toString()) {
+        if (comment._id.toString() === comment_id) {
+          post.comments.splice(index, 1)
+          await post.save()
+          res.json(post)
+        } else {
+          return errorRespone('unauthorized', 'You are not authorized to delete this comment', res, 400)
+        }
+      } else {
+        return errorRespone('no comment', 'You have not yet commented on this post', res, 400)
       }
     })
   } catch (err) {

@@ -21,6 +21,8 @@ package-lock.json
 *.lock
 .env
 /log
+/dist
+/coverage
 
 
 # Coveralls

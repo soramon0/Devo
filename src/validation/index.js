@@ -1,6 +1,6 @@
 import { ensureLogin, ensureRegister } from './user'
 import { ensureProfile, ensureProfileExp, ensureProfileEdu } from './profile'
-import { ensurePost } from './post'
+import { ensurePost, ensureComment } from './post'
 
 export {
   ensureRegister,
@@ -8,5 +8,6 @@ export {
   ensureProfile,
   ensureProfileExp,
   ensureProfileEdu,
-  ensurePost
+  ensurePost,
+  ensureComment
 }

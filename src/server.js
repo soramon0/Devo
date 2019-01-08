@@ -1,9 +1,13 @@
+import 'dotenv/config'
 import express from 'express'
 import favicon from 'serve-favicon'
 import helmet from 'helmet'
 import featurePolicy from 'feature-policy'
 import compression from 'compression'
 import timeout from 'express-timeout-handler'
+import ExpressBrute from 'express-brute'
+import RedisStore from 'express-brute-redis'
+import moment from 'moment'
 import { json } from 'body-parser'
 import { connect } from 'mongoose'
 import passport from 'passport'
@@ -49,6 +53,35 @@ app.use(featurePolicy({
     syncXhr: ["'none'"]
   }
 }))
+
+const store = new RedisStore({
+  host: '127.0.0.1',
+  port: 6379
+})
+
+const failCallback = (req, res, next, nextValidRequestDate) => {
+  errorRespone('Rate limit', "You've made too many failed attempts in a short period of time, please try again later " + moment(nextValidRequestDate).fromNow(), res, 429)
+}
+const handleStoreError = error => {
+  console.error(error)
+  throw new Error({
+    message: error.message,
+    parent: error.parent
+  })
+}
+const bruteforce = new ExpressBrute(store, {
+  freeRetries: 1000,
+  attachResetToRequest: false,
+  refreshTimeoutOnRequest: false,
+  minWait: 5 * 60 * 1000, // 5 minutes
+  maxWait: 60 * 60 * 1000, // 1 hour,
+  failCallback,
+  handleStoreError,
+  lifetime: 24 * 60 * 60
+})
+
+app.set('trust proxy', 1)
+
 app.use(timeout.handler({
   timeout: 5000,
   onTimeout: (req, res) => {
@@ -76,7 +109,7 @@ connect(DB_URI, databaseOptions)
     app.listen(port, () => console.log(`- Server Started On http://localhost:${port}`))
 
     // Routes
-    app.use('/', index)
+    app.use('/', bruteforce.prevent, index)
     app.use('/api/users', users)
     app.use('/api/profile', profile)
     app.use('/api/posts', posts)
@@ -91,5 +124,6 @@ connect(DB_URI, databaseOptions)
       name: err.name,
       message: err.message || err.msg
     }
-    console.log(error)
+    console.error(error)
+    return error
   })
