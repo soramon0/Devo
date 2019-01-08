@@ -102,7 +102,7 @@ if (NODE_ENV === 'development') {
 const databaseOptions = { useNewUrlParser: true }
 
 // Connect to Database
-connect(DB_URI, databaseOptions)
+connect(DB_URI.toString(), databaseOptions)
   .then(() => {
     console.log('- Database Connected...')
     const port = PORT || 3000
