@@ -1,27 +1,35 @@
+import 'dotenv/config'
+import '@babel/polyfill'
 import mongoose from 'mongoose'
 import { before, it, after, describe } from 'mocha'
 import { expect } from 'chai'
-import { user } from '../models/schema'
-let User
+import User from '../models/User'
+// let User
 let db
 
+let name = 'kai desu'
+let email = 'kai@gmail.com'
+let password = 'kai12345'
+
 before('Connect to test database', () => {
-  db = mongoose.connection.useDb(process.env.DB_TEST)
+  db = mongoose.connection.openUri('mongodb://localhost:27017/devconnectorTest', { useNewUrlParser: true })
   db.on('error', console.error.bind(console, 'connection error'))
-  db.once('open', () => {
-    console.log('We are connected to test database!')
-  })
-  User = db.model('User', user)
 })
 
 describe('Test User Controller', () => {
-  it('Check if the users collection is empty', () => {
-    User.find()
-      .then(users => {
-        if (!users) {
-          expect(users).toEqual('undefiend')
-        }
-      })
+  it('Check if the users collection is empty', async () => {
+    const users = await User.find()
+    if (!users) {
+      expect(users).equal('undefiend')
+    }
+  })
+
+  it('Create a new user', async () => {
+    const user = new User({ name, email, password })
+    const savedUser = await user.save()
+    expect(savedUser.name).equal(name)
+    expect(savedUser.email).equal(email)
+    expect(savedUser.password).to.not.equal(password)
   })
 })
 
