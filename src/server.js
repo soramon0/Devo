@@ -1,4 +1,5 @@
 import 'dotenv/config'
+import '@babel/polyfill'
 import express from 'express'
 import favicon from 'serve-favicon'
 import helmet from 'helmet'
@@ -24,7 +25,7 @@ import { users, profile, posts } from './routes/api'
 import { errorRespone } from './validation/ErrorHelper'
 
 // ENV Vars
-const { DB_URI, PORT, NODE_ENV } = process.env
+const { DB_URI, DB_TEST, PORT, NODE_ENV } = process.env
 
 const app = express()
 
@@ -60,7 +61,7 @@ const store = new RedisStore({
 })
 
 const failCallback = (req, res, next, nextValidRequestDate) => {
-  errorRespone('Rate limit', "You've made too many failed attempts in a short period of time, please try again later " + moment(nextValidRequestDate).fromNow(), res, 429)
+  errorRespone('Rate limit', `You've made too many failed attempts in a short period of time, please try again later in ${moment(nextValidRequestDate).fromNow()}`, res, 429)
 }
 const handleStoreError = error => {
   console.error(error)
@@ -101,8 +102,10 @@ if (NODE_ENV === 'development') {
 }
 const databaseOptions = { useNewUrlParser: true }
 
+let db = process.env.NODE_ENV === 'test' ? DB_TEST : DB_URI
+
 // Connect to Database
-connect(DB_URI, databaseOptions)
+connect(db, databaseOptions)
   .then(() => {
     console.log('- Database Connected...')
     const port = PORT || 3000

@@ -4,9 +4,11 @@
   "description": "Social network for developers",
   "main": "server.js",
   "scripts": {
-    "build": "babel ./src/server -d dist",
-    "test": "mocha --require babel-register ./src/test",
-    "start": "yarn run build && node dist/server.js",
+    "clean": "rm -rf build && mkdir build",
+    "build-server": "babel -d ./build ./src",
+    "build": "yarn run clean && yarn run build-server",
+    "test": "set NODE_ENV=test&& mocha --require babel-register ./src/test --exit",
+    "start": "node ./build/server.js",
     "dev": "nodemon --exec babel-node ./src/server",
     "start:dev": "babel-node ./src/server"
   },
@@ -30,6 +32,8 @@
     "chai": "^4.2.0",
     "mocha": "^5.2.0",
     "nodemon": "^1.18.9",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.2",
     "standard": "^12.0.1",
     "volleyball": "^1.5.1"
   },
