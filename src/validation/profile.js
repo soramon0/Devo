@@ -55,7 +55,14 @@ export const ensureProfileExp = async data => {
     description,
     from,
     to,
-    company: yup.string().required().trim().strict().min(3).max(40).label('Company')
+    company: yup
+      .string()
+      .required()
+      .trim()
+      .strict()
+      .min(3)
+      .max(40)
+      .label('Company')
   })
   try {
     await schema.validate(data, { abortEarly: false })

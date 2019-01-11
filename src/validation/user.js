@@ -7,10 +7,13 @@ export const ensureRegister = async data => {
     name,
     email,
     password,
-    password2: yup.string().required().test('match', 'Passwords must match', function (password2) {
-      const { password } = this.parent
-      return password === password2
-    })
+    password2: yup
+      .string()
+      .required()
+      .test('match', 'Passwords must match', function (password2) {
+        const { password } = this.parent
+        return password === password2
+      })
   })
   try {
     await schema.validate(data, { abortEarly: false })

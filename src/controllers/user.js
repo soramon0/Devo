@@ -1,10 +1,10 @@
 import { sign } from 'jsonwebtoken'
-import User from '../../../models/User'
+import User from '../models/User'
 
 // Load Input Validatoin
-import { ensureRegister, ensureLogin } from '../../../validation'
-import { errorRespone } from '../../../validation/ErrorHelper'
-import { removeField } from '../../../utils/removeField'
+import { ensureRegister, ensureLogin } from '../validation'
+import { errorRespone } from '../validation/ErrorHelper'
+import { removeField } from '../utils/removeField'
 
 // Handles register
 export const register = async (req, res) => {
@@ -49,10 +49,15 @@ export const login = async (req, res) => {
     const payload = { id: user.id, name: user.name, avatar: user.avatar }
 
     // Sign Token
-    sign(payload, process.env.secretOrKey, { expiresIn: 3600 * 3 }, (err, token) => {
-      if (err) errorRespone(err.name, err.message, res, 500)
-      res.json({ success: true, token: `Bearer ${token}` })
-    })
+    sign(
+      payload,
+      process.env.secretOrKey,
+      { expiresIn: 3600 * 3 },
+      (err, token) => {
+        if (err) errorRespone(err.name, err.message, res, 500)
+        res.json({ success: true, token: `Bearer ${token}` })
+      }
+    )
   } catch (err) {
     return errorRespone(err.name, err.message, res, 500)
   }

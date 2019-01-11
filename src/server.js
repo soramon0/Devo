@@ -30,38 +30,49 @@ const { DB_URI, DB_TEST, PORT, NODE_ENV } = process.env
 const app = express()
 
 // MiddleWare
-app.use(helmet({
-  referrerPolicy: { policy: 'same-origin' },
-  contentSecurityPolicy: {
-    directives: {
-      blockAllMixedContent: true,
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'"],
-      objectSrc: ["'none'"],
-      fontSrc: ["'self'"],
-      frameSrc: ["'self'"]
-    },
-    disableAndroid: true
-  }
-}))
-app.use(featurePolicy({
-  features: {
-    fullscreen: ["'self'"],
-    vibrate: ["'self'"],
-    payment: ["'self'"],
-    syncXhr: ["'none'"]
-  }
-}))
+app.use(
+  helmet({
+    referrerPolicy: { policy: 'same-origin' },
+    contentSecurityPolicy: {
+      directives: {
+        blockAllMixedContent: true,
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        imgSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        fontSrc: ["'self'"],
+        frameSrc: ["'self'"]
+      },
+      disableAndroid: true
+    }
+  })
+)
+app.use(
+  featurePolicy({
+    features: {
+      fullscreen: ["'self'"],
+      vibrate: ["'self'"],
+      payment: ["'self'"],
+      syncXhr: ["'none'"]
+    }
+  })
+)
 
 const store = new RedisStore({
   host: '127.0.0.1',
   port: 6379
 })
 
-const failCallback = (req, res, next, nextValidRequestDate) => {
-  errorRespone('Rate limit', `You've made too many failed attempts in a short period of time, please try again later in ${moment(nextValidRequestDate).fromNow()}`, res, 429)
+const failCallback = (_req, res, _next, nextValidRequestDate) => {
+  errorRespone(
+    'Rate limit',
+    `You've made too many failed attempts in a short period of time, please try again later in ${moment(
+      nextValidRequestDate
+    ).fromNow()}`,
+    res,
+    429
+  )
 }
 const handleStoreError = error => {
   console.error(error)
@@ -83,12 +94,19 @@ const bruteforce = new ExpressBrute(store, {
 
 app.set('trust proxy', 1)
 
-app.use(timeout.handler({
-  timeout: 5000,
-  onTimeout: (req, res) => {
-    return errorRespone('Service timedout', 'Service unavailable. Please retry', res, 503)
-  }
-}))
+app.use(
+  timeout.handler({
+    timeout: 5000,
+    onTimeout: (_req, res) => {
+      return errorRespone(
+        'Service timedout',
+        'Service unavailable. Please retry',
+        res,
+        503
+      )
+    }
+  })
+)
 app.use(favicon(join(__dirname, 'public', 'img', 'favicon.png')))
 app.use(json())
 app.use(compression())
@@ -100,22 +118,25 @@ passportConfig()
 if (NODE_ENV === 'development') {
   app.use(volleyball)
 }
-const databaseOptions = { useNewUrlParser: true }
-
-let db = process.env.NODE_ENV === 'test' ? DB_TEST : DB_URI
 
 // Connect to Database
-connect(db, databaseOptions)
+const db = process.env.NODE_ENV === 'test' ? DB_TEST : DB_URI
+connect(
+  db,
+  { useNewUrlParser: true }
+)
   .then(() => {
     console.log('- Database Connected...')
     const port = PORT || 3000
-    app.listen(port, () => console.log(`- Server Started On http://localhost:${port}`))
+    app.listen(port, () =>
+      console.log(`- Server Started On http://localhost:${port}`)
+    )
 
     // Routes
     app.use('/', bruteforce.prevent, index)
-    app.use('/api/users', users)
+    app.use('/api/user', users)
     app.use('/api/profile', profile)
-    app.use('/api/posts', posts)
+    app.use('/api/post', posts)
     app.use(notFound)
     app.use((err, _req, res, next) => {
       if (err.status === 400) return errorRespone(err.name, err.message, res)

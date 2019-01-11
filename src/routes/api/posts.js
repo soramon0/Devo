@@ -1,46 +1,59 @@
 import { Router } from 'express'
 import { authenticateWith } from '../../utils/authStrategy'
-import { addPost, getPostById, getAllPosts, delPost, likePost, unlikePost, addPostComment, delPostComment } from './handles/post'
+import {
+  addPost,
+  getPostById,
+  getAllPosts,
+  delPost,
+  likePost,
+  unlikePost,
+  addPostComment,
+  delPostComment
+} from '../../controllers/post'
 const router = Router()
 
-// @route   GET /api/posts/all
+// @route   GET /api/post/all
 // @desc    Create A Post
 // access   Public
 router.get('/all', getAllPosts)
 
-// @route   GET /api/posts/post/:post_id
+// @route   GET /api/post/:postId
 // @desc    Gets a post by id
 // access   Public
-router.get('/post/:post_id', getPostById)
+router.get('/:postId', getPostById)
 
 // @route   POST /api/posts
 // @desc    Create A Post
 // access   Private
 router.post('/', authenticateWith('jwt'), addPost)
 
-// @route   DELETE /api/posts/post/:post_id
+// @route   DELETE /api/post/:postId
 // @desc    Delete A Post
 // access   Private
-router.delete('/post/:post_id', authenticateWith('jwt'), delPost)
+router.delete('/:postId', authenticateWith('jwt'), delPost)
 
-// @route   POST /api/posts/like/:id
+// @route   POST /api/post/like/:id
 // @desc    Adde A Like To A Post
 // access   Private
-router.post('/like/:id', authenticateWith('jwt'), likePost)
+router.post('/like/:postId', authenticateWith('jwt'), likePost)
 
-// @route   POST /api/posts/unlike/:id
+// @route   POST /api/post/like/:id
 // @desc    Remove A Like from Post
 // access   Private
-router.delete('/like/:id', authenticateWith('jwt'), unlikePost)
+router.delete('/like/:postId', authenticateWith('jwt'), unlikePost)
 
-// @route   POST /api/posts/comment/:id
+// @route   POST /api/post/comment/:id
 // @desc    Add a comment to a post
 // access   Private
-router.post('/comment/:id', authenticateWith('jwt'), addPostComment)
+router.post('/comment/:postId', authenticateWith('jwt'), addPostComment)
 
-// @route   POST /api/posts/comment/:id
+// @route   POST /api/post/comment/:postId/:commentId
 // @desc    Removes a comment from post
 // access   Private
-router.delete('/comment/:id/:comment_id', authenticateWith('jwt'), delPostComment)
+router.delete(
+  '/comment/:postId/:commentId',
+  authenticateWith('jwt'),
+  delPostComment
+)
 
 export default router

@@ -9,13 +9,15 @@ const opts = {
 }
 
 export default () => {
-  passport.use(new Strategy(opts, async ({ id }, done) => {
-    const user = await User.findById(id)
-    if (user) {
-      // Remove password from req.user
-      const currentUser = removeField(user._doc, 'password')
-      return done(null, currentUser)
-    }
-    return done(null, false)
-  }))
+  passport.use(
+    new Strategy(opts, async ({ id }, done) => {
+      const user = await User.findById(id)
+      if (user) {
+        // Remove password from req.user
+        const currentUser = removeField(user._doc, 'password')
+        return done(null, currentUser)
+      }
+      return done(null, false)
+    })
+  )
 }

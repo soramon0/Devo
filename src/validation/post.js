@@ -12,7 +12,11 @@ export const ensurePost = async data => {
 }
 export const ensureComment = async data => {
   const schema = yup.object().shape({
-    name: yup.string().trim().strict().label('Name'),
+    name: yup
+      .string()
+      .trim()
+      .strict()
+      .label('Name'),
     text,
     avatar
   })

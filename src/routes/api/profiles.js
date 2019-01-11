@@ -13,7 +13,7 @@ import {
   delExperience,
   delEducation,
   delProfileAndUser
-} from './handles/profile'
+} from '../../controllers/profile'
 
 const router = Router()
 
@@ -32,10 +32,10 @@ router.get('/all', getAll)
 // access   Public
 router.get('/handle/:handle', getByHandle)
 
-// @route   GET /api/profile/handle/:id
-// @desc    Get Profile by ID
+// @route   GET /api/profile/user/:userId
+// @desc    Get Profile by userId
 // access   Public
-router.get('/user/:user_id', getById)
+router.get('/user/:userId', getById)
 
 // @route   POST /api/profile
 // @desc    Create or Edit user profile
@@ -50,7 +50,7 @@ router.post('/experience', authenticateWith('jwt'), addExperience)
 // @route   DELETE /api/profile/experience/:exp_id
 // @desc    Deletes experience
 // access   Private
-router.delete('/experience/:exp_id', authenticateWith('jwt'), delExperience)
+router.delete('/experience/:expId', authenticateWith('jwt'), delExperience)
 
 // @route   POST /api/profile/eduction
 // @desc    Add education
@@ -60,7 +60,7 @@ router.post('/education', authenticateWith('jwt'), addEducation)
 // @route   DELETE /api/profile/experience/:edu_id
 // @desc    Deletes education
 // access   Private
-router.delete('/education/:edu_id', authenticateWith('jwt'), delEducation)
+router.delete('/education/:eduId', authenticateWith('jwt'), delEducation)
 
 // @route   DELETE /api/profile
 // @desc    Deletes education
