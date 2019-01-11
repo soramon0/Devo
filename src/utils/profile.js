@@ -7,7 +7,9 @@ export const GetProfileFields = fields => {
   if (fields.body.location) profileFields.location = fields.body.location
   if (fields.body.bio) profileFields.bio = fields.body.bio
   if (fields.body.status) profileFields.status = fields.body.status
-  if (fields.body.githubusername) { profileFields.githubusername = fields.body.githubusername }
+  if (fields.body.githubusername) {
+    profileFields.githubusername = fields.body.githubusername
+  }
   // Skills - split into array
   if (typeof fields.body.skills !== 'undefined') {
     profileFields.skills = fields.body.skills.split(',')
@@ -18,7 +20,9 @@ export const GetProfileFields = fields => {
   if (fields.body.facebook) profileFields.social.facebook = fields.body.facebook
   if (fields.body.linkedin) profileFields.social.linkedin = fields.body.linkedin
   if (fields.body.twitter) profileFields.social.twitter = fields.body.twitter
-  if (fields.body.instagram) { profileFields.social.instagram = fields.body.instagram }
+  if (fields.body.instagram) {
+    profileFields.social.instagram = fields.body.instagram
+  }
 
   return profileFields
 }

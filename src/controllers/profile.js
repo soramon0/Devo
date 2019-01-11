@@ -30,7 +30,9 @@ export const getCurrentProfile = async ({ user }, res) => {
 export const getAll = async (_req, res) => {
   try {
     const profiles = await Profile.find().limit(6)
-    if (profiles.length < 1) { return errorRespone('no profiles', 'There are no profiles', res) }
+    if (profiles.length === 0) {
+      return errorRespone('no profiles', 'There are no profiles', res)
+    }
     res.json(profiles)
   } catch (err) {
     return errorRespone(err.name, err.message, res)
@@ -42,7 +44,9 @@ export const getByHandle = async ({ params: { handle } }, res) => {
   try {
     // Find Proile By Handle
     const profile = await Profile.findOne({ handle })
-    if (!profile) { return errorRespone('no handle', 'There is no handle with that user', res) }
+    if (!profile) {
+      return errorRespone('no handle', 'There is no handle with that user', res)
+    }
     res.json(profile)
   } catch (err) {
     return errorRespone(err.name, err.message, res)
@@ -58,7 +62,9 @@ export const getById = async ({ params: { userId } }, res) => {
   // Find Proile By ID
   try {
     const profile = await Profile.findOne({ user: userId })
-    if (!profile) { return errorRespone('no profile', 'There is no profile with that id', res) }
+    if (!profile) {
+      return errorRespone('no profile', 'There is no profile with that id', res)
+    }
     res.json(profile)
   } catch (err) {
     return errorRespone(err.name, err.message, res)
@@ -83,7 +89,9 @@ export const createProfile = async (req, res) => {
         { handle: profileFields.handle },
         'handle'
       )
-      if (handle) { return errorRespone('handle', 'That handle already exists', res) }
+      if (handle) {
+        return errorRespone('handle', 'That handle already exists', res)
+      }
       const updatedProfile = await Profile.findOneAndUpdate(
         { user: req.user._id },
         { $set: profileFields },
@@ -97,7 +105,9 @@ export const createProfile = async (req, res) => {
         { handle: profileFields.handle },
         'handle'
       )
-      if (profile) { return errorRespone('handle', 'That handle already exists', res) }
+      if (profile) {
+        return errorRespone('handle', 'That handle already exists', res)
+      }
       // Save Porfile
       const newProfile = await new Profile(profileFields).save()
       res.json(newProfile)
@@ -139,7 +149,9 @@ export const delExperience = async ({ params: { expId }, user }, res) => {
   // Find Proile By ID
   try {
     const profile = await Profile.findOne({ user: user._id })
-    if (!profile) { return errorRespone('no profile', 'There is no profile with that id', res) }
+    if (!profile) {
+      return errorRespone('no profile', 'There is no profile with that id', res)
+    }
     // Get remove index
     if (profile.experience.length === 0) {
       return errorRespone('experience', 'experience is empty', res)
@@ -197,7 +209,9 @@ export const delEducation = async ({ params: { eduId }, user }, res) => {
   // Find Proile By ID
   try {
     const profile = await Profile.findOne({ user: user._id })
-    if (!profile) { return errorRespone('no profile', 'There is no profile with that id', res) }
+    if (!profile) {
+      return errorRespone('no profile', 'There is no profile with that id', res)
+    }
     // Get remove index
     if (profile.education.length === 0) {
       return errorRespone('education', 'education is empty', res)
@@ -215,9 +229,13 @@ export const delEducation = async ({ params: { eduId }, user }, res) => {
 export const delProfileAndUser = async (req, res) => {
   try {
     const profile = await Profile.findOneAndRemove({ user: req.user._id })
-    if (!profile) { return errorRespone('no profile', 'There is no profile with that id', res) }
+    if (!profile) {
+      return errorRespone('no profile', 'There is no profile with that id', res)
+    }
     const user = await User.findOneAndRemove({ _id: req.user._id })
-    if (!user) { return errorRespone('no user', 'There is no user with that id', res) }
+    if (!user) {
+      return errorRespone('no user', 'There is no user with that id', res)
+    }
     res.json({ sucess: true })
   } catch (err) {
     return errorRespone(err.name, err.message, res)

@@ -1,4 +1,5 @@
 import 'dotenv/config'
+import '@babel/polyfill'
 import '../server'
 import mongoose from 'mongoose'
 import request from 'request-promise'

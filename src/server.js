@@ -1,5 +1,4 @@
 import 'dotenv/config'
-import '@babel/polyfill'
 import express from 'express'
 import favicon from 'serve-favicon'
 import helmet from 'helmet'

@@ -9,7 +9,9 @@ export const getPostById = async ({ params: { postId } }, res) => {
   }
   try {
     const post = await Post.findById(postId)
-    if (!post) { return errorRespone('no post', 'There is no post with that id', res) }
+    if (!post) {
+      return errorRespone('no post', 'There is no post with that id', res)
+    }
     res.json(post)
   } catch (err) {
     return errorRespone(err.name, err.message, res)
@@ -21,7 +23,9 @@ export const getAllPosts = async (_req, res) => {
     const posts = await Post.find()
       .limit(6)
       .sort({ createdAt: -1 })
-    if (posts.length < 1) { return errorRespone('no posts', 'There are no posts', res) }
+    if (posts.length < 1) {
+      return errorRespone('no posts', 'There are no posts', res)
+    }
     res.json(posts)
   } catch (err) {
     return errorRespone(err.name, err.message, res)
@@ -51,7 +55,9 @@ export const delPost = async ({ params: { postId }, user }, res) => {
   }
   try {
     const post = await Post.findById(postId)
-    if (!post) { return errorRespone('no post', 'There is no post with that id', res) }
+    if (!post) {
+      return errorRespone('no post', 'There is no post with that id', res)
+    }
     // Check if the loged in user_id is equal to the post id
     if (post.user.toString() !== user._id.toString()) {
       return errorRespone('not authorized', 'User not authorized', res, 401)
@@ -70,7 +76,9 @@ export const likePost = async ({ params: { postId }, user }, res) => {
   }
   try {
     const post = await Post.findById(postId)
-    if (!post) { return errorRespone('no post', 'There is no post with that id', res) }
+    if (!post) {
+      return errorRespone('no post', 'There is no post with that id', res)
+    }
     // Check if user already liked the post
     if (
       post.likes.filter(like => like.user.toString() === user._id.toString())
@@ -99,7 +107,9 @@ export const unlikePost = async ({ params: { postId }, user }, res) => {
   }
   try {
     const post = await Post.findById(postId)
-    if (!post) { return errorRespone('no post', 'There is no post with that id', res) }
+    if (!post) {
+      return errorRespone('no post', 'There is no post with that id', res)
+    }
     post.likes.find(async (like, index) => {
       if (like.user.toString() === user._id.toString()) {
         post.likes.splice(index, 1)
@@ -131,7 +141,9 @@ export const addPostComment = async (
   if (notValid) return res.status(400).json(notValid)
   try {
     const post = await Post.findOne({ _id: postId })
-    if (!post) { return errorRespone('no post', 'There is no post with that id', res) }
+    if (!post) {
+      return errorRespone('no post', 'There is no post with that id', res)
+    }
     const comment = {
       text: body.text,
       name: post.user.name,
@@ -159,7 +171,9 @@ export const delPostComment = async (
   }
   try {
     const post = await Post.findById(postId)
-    if (!post) { return errorRespone('no post', 'There is no post with that id', res) }
+    if (!post) {
+      return errorRespone('no post', 'There is no post with that id', res)
+    }
     post.comments.find(async (comment, index) => {
       if (comment.user.toString() === user._id.toString()) {
         if (comment._id.toString() === commentId) {
