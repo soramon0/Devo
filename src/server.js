@@ -22,9 +22,19 @@ import index from './routes'
 import notFound from './routes/notFound'
 import { users, profile, posts } from './routes/api'
 import { errorRespone } from './validation/ErrorHelper'
+import { stringify } from 'querystring'
 
 // ENV Vars
-const { DB_URI, DB_TEST, PORT, NODE_ENV } = process.env
+const {
+  DB_USER,
+  DB_PASSWORD,
+  DB_HOST,
+  DB_PORT,
+  DB_NAME,
+  DB_TEST,
+  PORT,
+  NODE_ENV
+} = process.env
 
 const app = express()
 
@@ -119,10 +129,11 @@ if (NODE_ENV === 'development') {
 }
 
 // Connect to Database
-const db = process.env.NODE_ENV === 'test' ? DB_TEST : DB_URI
+const DB = process.env.NODE_ENV === 'test' ? DB_TEST : DB_NAME
+const options = { useNewUrlParser: true }
 connect(
-  db,
-  { useNewUrlParser: true }
+  `mongodb://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB}`,
+  options
 )
   .then(() => {
     console.log('- Database Connected...')
