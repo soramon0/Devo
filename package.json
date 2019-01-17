@@ -32,13 +32,15 @@
     "@types/body-parser": "^1.17.0",
     "@types/express": "^4.16.0",
     "@types/gravatar": "^1.4.28",
-    "@types/jest": "^23.3.11",
     "@types/jsonwebtoken": "^8.3.0",
     "@types/mongoose": "^5.3.7",
+    "@types/nodemailer": "^4.6.5",
     "@types/passport": "^1.0.0",
     "@types/passport-jwt": "^3.0.1",
+    "@types/uuid": "^3.4.4",
     "@types/validator": "^10.9.0",
     "@types/yup": "^0.26.4",
+    "axios": "^0.18.0",
     "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "babel-register": "^6.26.0",
@@ -55,8 +57,6 @@
     "nodemon": "^1.18.9",
     "prettier-eslint": "^8.8.2",
     "prettier-eslint-cli": "^4.7.1",
-    "request": "^2.88.0",
-    "request-promise": "^4.2.2",
     "volleyball": "^1.5.1"
   },
   "dependencies": {
@@ -75,9 +75,11 @@
     "jsonwebtoken": "^8.4.0",
     "moment": "^2.23.0",
     "mongoose": "^5.4.2",
+    "nodemailer": "^5.1.1",
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
     "serve-favicon": "^2.5.0",
+    "uuid": "^3.3.2",
     "yup": "^0.26.6"
   }
 }

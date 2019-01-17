@@ -24,6 +24,10 @@ export const user = {
   },
   avatar: {
     type: String
+  },
+  isConfirmed: {
+    type: Boolean,
+    default: false
   }
 }
 

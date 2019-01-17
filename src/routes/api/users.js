@@ -11,6 +11,11 @@ const router = Router()
 // access   Public
 router.post('/register', register)
 
+// @route   POST /api/user/confirm/:token
+// @desc    Confirm user email
+// access   Public
+// router.get('/confirm/:token', confirmEmail)
+
 // @route   POST /api/user/login
 // @desc    Logs in a user
 // access   Public

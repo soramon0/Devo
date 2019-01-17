@@ -5,6 +5,8 @@ import User from '../models/User'
 import { ensureRegister, ensureLogin } from '../validation'
 import { errorRespone } from '../validation/ErrorHelper'
 import { removeField } from '../utils/removeField'
+// import { sendEmail } from '../utils/sendEmail'
+// import uuid from 'uuid/v4'
 
 // Handles register
 export const register = async (req, res) => {
@@ -19,8 +21,16 @@ export const register = async (req, res) => {
 
     // Register User
     const newUser = await new User({ name, email, password }).save()
+
+    // const token = uuid()
+    // const url = `${req.protocol}://${req.get('host')}${
+    //   req.baseUrl
+    // }/confirm/${token}`
+
+    // await sendEmail(email, url)
+
     const registeredUser = removeField(newUser._doc, 'password')
-    res.json(registeredUser)
+    res.status(200).json(registeredUser)
   } catch (err) {
     return errorRespone(err.name, err.message, res)
   }
@@ -44,6 +54,11 @@ export const login = async (req, res) => {
     const valid = await user.comparePassword(password)
     if (!valid) return errorRespone('login', 'Invalid login', res, 400)
     // User is Valid
+
+    // Check if User confirmed their Email
+    // if (!user.isConfirmed) {
+    //   return errorRespone('login', 'Please confirm your email first', res, 400)
+    // }
 
     // Create token payload
     const payload = { id: user.id, name: user.name, avatar: user.avatar }

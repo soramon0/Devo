@@ -22,7 +22,6 @@ import index from './routes'
 import notFound from './routes/notFound'
 import { users, profile, posts } from './routes/api'
 import { errorRespone } from './validation/ErrorHelper'
-import { stringify } from 'querystring'
 
 // ENV Vars
 const {
@@ -32,7 +31,7 @@ const {
   DB_PORT,
   DB_NAME,
   DB_TEST,
-  PORT,
+  APP_PORT,
   NODE_ENV
 } = process.env
 
@@ -137,7 +136,7 @@ connect(
 )
   .then(() => {
     console.log('- Database Connected...')
-    const port = PORT || 3000
+    const port = APP_PORT || 3000
     app.listen(port, () =>
       console.log(`- Server Started On http://localhost:${port}`)
     )
@@ -149,7 +148,9 @@ connect(
     app.use('/api/post', posts)
     app.use(notFound)
     app.use((err, _req, res, next) => {
-      if (err.status === 400) return errorRespone(err.name, err.message, res)
+      if (err.status === 400) {
+        return errorRespone(err.name, err.message, res, 400)
+      }
       return next(err)
     })
   })

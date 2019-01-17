@@ -2,7 +2,7 @@ import 'dotenv/config'
 import '@babel/polyfill'
 import '../server'
 import mongoose from 'mongoose'
-import request from 'request-promise'
+import axios from 'axios'
 import { describe, it, after } from 'mocha'
 import { expect } from 'chai'
 import User from '../models/User'
@@ -10,15 +10,16 @@ import User from '../models/User'
 let name = 'kai desu'
 let email = 'kai@gmail.com'
 let password = 'kai12345'
-let url = `http://localhost:${process.env.PORT}/api/user`
-let registerReq = `
-  {
-    "name": "${name}",
-    "email": "${email}",
-    "password": "${password}",
-    "password2": "${password}"
-  }
+let url = `http://localhost:${process.env.APP_PORT}/api/user`
+let registerReq = (n, e, p, p2) => `
+{
+  "name": "${n}",
+  "email": "${e}",
+  "password": "${p}",
+  "password2": "${p2}"
+}
 `
+
 let loginReq = (e, p) => `
   {
     "email": "${e}",
@@ -34,114 +35,218 @@ describe('Test User Controller', () => {
     }
   })
 
-  it('Register a user in the database through the API', async () => {
-    const options = {
-      uri: `${url}/register`,
-      method: 'POST',
+  it('Return error if json request is invalid', async () => {
+    const registerOptions = {
+      method: 'post',
+      url: `${url}/register`,
       headers: { 'content-type': 'application/json' },
-      body: registerReq
+      data: `{ name: "email" }`
     }
-    let response = await request(options)
-    response = JSON.parse(response)
-    expect(response).to.be.an('object')
-    expect(response).to.have.own.property('_id')
-    expect(response).to.have.own.property('avatar')
-    expect(response).to.have.own.property('createdAt')
-    expect(response).to.have.own.property('updatedAt')
-    expect(response.name).to.equal(name)
-    expect(response.email).to.equal(email)
-    expect(response.password).to.not.equal(password)
+    try {
+      await axios(registerOptions)
+    } catch ({ response: { status, data } }) {
+      expect(status).to.equal(400)
+      expect(data).to.be.an('object')
+      expect(data).to.have.own.property('error')
+      expect(data).to.have.nested.property('error.SyntaxError')
+      expect(data.error.SyntaxError).to.equal(
+        'Unexpected token n in JSON at position 2'
+      )
+    }
+  })
+
+  it('Return an array of errors if registration inputs were empty', async () => {
+    const registerOptions = {
+      method: 'post',
+      url: `${url}/register`,
+      headers: { 'content-type': 'application/json' },
+      data: ''
+    }
+    try {
+      await axios(registerOptions)
+    } catch ({ response: { status, data } }) {
+      expect(status).to.equal(400)
+      expect(data).to.be.an('object')
+      expect(data).to.have.own.property('name')
+      expect(data.name).to.equal('ValidationError')
+      expect(data).to.have.own.property('error')
+      expect(data.error).to.be.an('array')
+      expect(data.error).to.have.lengthOf(4)
+      expect(data.error[0]).to.equal('Name is a required field')
+      expect(data.error[1]).to.equal('Email is a required field')
+      expect(data.error[2]).to.equal('password2 is a required field')
+      expect(data.error[3]).to.equal('Password is a required field')
+    }
+  })
+
+  it('Return an array of errors if registration inputs are invalid', async () => {
+    const registerOptions = {
+      method: 'post',
+      url: `${url}/register`,
+      headers: { 'content-type': 'application/json' },
+      data: registerReq('    kai', 'email', 'pass', password)
+    }
+    try {
+      await axios(registerOptions)
+    } catch ({ response: { status, data } }) {
+      expect(status).to.equal(400)
+      expect(data).to.be.an('object')
+      expect(data).to.have.own.property('name')
+      expect(data.name).to.equal('ValidationError')
+      expect(data).to.have.own.property('error')
+      expect(data.error).to.be.an('array')
+      expect(data.error).to.have.lengthOf(4)
+      expect(data.error[0]).to.equal('Name must be a trimmed string')
+      expect(data.error[1]).to.equal('Email must be a valid email')
+      expect(data.error[2]).to.equal('Passwords must match')
+      expect(data.error[3]).to.equal('Password must be at least 8 characters')
+    }
+  })
+
+  it('Register a user in the database through the API', async () => {
+    const registerOptions = {
+      method: 'post',
+      url: `${url}/register`,
+      headers: { 'content-type': 'application/json' },
+      data: registerReq(name, email, password, password)
+    }
+    const { data } = await axios(registerOptions)
+    expect(data).to.be.an('object')
+    expect(data).to.have.own.property('_id')
+    expect(data).to.have.own.property('isConfirmed')
+    expect(data.isConfirmed).to.equal(false)
+    expect(data).to.have.own.property('avatar')
+    expect(data).to.have.own.property('createdAt')
+    expect(data).to.have.own.property('updatedAt')
+    expect(data.name).to.equal(name)
+    expect(data.email).to.equal(email)
+    expect(data.password).to.not.equal(password)
     const user = await User.findOne({ email })
-    expect(user.id).to.equal(response._id)
-    expect(user.name).to.equal(response.name)
-    expect(user.email).to.equal(response.email)
+    expect(user.id).to.equal(data._id)
+    expect(user.name).to.equal(data.name)
+    expect(user.email).to.equal(data.email)
   })
 
   it('Dubplicate Emails', async () => {
-    const options = {
-      uri: `${url}/register`,
+    const registerOptions = {
+      url: `${url}/register`,
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: registerReq
+      data: registerReq(name, email, password, password)
     }
     try {
-      await request(options)
-    } catch ({ response: { body }, statusCode }) {
-      const res = JSON.parse(body)
-      expect(res.error.register).to.equal('Invalid register')
-      expect(statusCode).to.equal(400)
+      await axios(registerOptions)
+    } catch ({ response: { status, data } }) {
+      expect(status).to.equal(400)
+      expect(data.error.register).to.equal('Invalid register')
+    }
+  })
+
+  it('Return an array of errors if login inputs were empty', async () => {
+    const loginOptions = {
+      method: 'post',
+      url: `${url}/login`,
+      headers: { 'content-type': 'application/json' },
+      data: ''
+    }
+    try {
+      await axios(loginOptions)
+    } catch ({ response: { status, data } }) {
+      expect(status).to.equal(400)
+      expect(data).to.be.an('object')
+      expect(data).to.have.own.property('name')
+      expect(data.name).to.equal('ValidationError')
+      expect(data).to.have.own.property('error')
+      expect(data.error).to.be.an('array')
+      expect(data.error).to.have.lengthOf(2)
+      expect(data.error[0]).to.equal('Email is a required field')
+      expect(data.error[1]).to.equal('Password is a required field')
+    }
+  })
+
+  it('Return an array of errors if login inputs are invalid', async () => {
+    const loginOptions = {
+      method: 'post',
+      url: `${url}/login`,
+      headers: { 'content-type': 'application/json' },
+      data: loginReq('invalidEmail@gmail', '       ')
+    }
+    try {
+      await axios(loginOptions)
+    } catch ({ response: { status, data } }) {
+      expect(status).to.equal(400)
+      expect(data).to.be.an('object')
+      expect(data).to.have.own.property('name')
+      expect(data.name).to.equal('ValidationError')
+      expect(data).to.have.own.property('error')
+      expect(data.error).to.be.an('array')
+      expect(data.error[0]).to.equal('Email must be a valid email')
+      expect(data.error[1]).to.equal('Password must be at least 8 characters')
     }
   })
 
   it('Login with bad email return error', async () => {
-    const options = {
-      uri: `${url}/login`,
+    const registerOptions = {
+      url: `${url}/login`,
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: loginReq('asap@gmail.com', password)
+      data: loginReq('asap@gmail.com', password)
     }
     try {
-      await request(options)
-    } catch ({ response: { body }, statusCode }) {
-      const res = JSON.parse(body)
-      expect(res.error.login).to.equal('Invalid login')
-      expect(statusCode).to.equal(400)
+      await axios(registerOptions)
+    } catch ({ response: { status, data } }) {
+      expect(status).to.equal(400)
+      expect(data.error.login).to.equal('Invalid login')
     }
   })
 
   it('Login with a bad password return error', async () => {
     const options = {
-      uri: `${url}/login`,
+      url: `${url}/login`,
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: loginReq(email, 'password')
+      data: loginReq(email, 'password')
     }
     try {
-      await request(options)
-    } catch ({ response: { body }, statusCode }) {
-      const res = JSON.parse(body)
-      expect(res.error.login).to.equal('Invalid login')
-      expect(statusCode).to.equal(400)
+      await axios(options)
+    } catch ({ response: { status, data } }) {
+      expect(status).to.equal(400)
+      expect(data.error.login).to.equal('Invalid login')
     }
   })
 
   it('Login a user and get user info with user token', async () => {
-    const options = {
-      uri: `${url}/login`,
+    const loginOptions = {
+      url: `${url}/login`,
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: loginReq(email, password)
+      data: loginReq(email, password)
     }
-    let response = await request(options)
-    response = JSON.parse(response)
-    expect(response).to.be.an('object')
-    expect(response).to.have.own.property('token')
-    expect(response).to.have.own.property('success')
-    expect(response.success).to.equal(true)
-    expect(response.token).to.not.be.a('null')
-    const options2 = {
-      uri: `${url}/current`,
+    const { data } = await axios(loginOptions)
+    expect(data).to.be.an('object')
+    expect(data).to.have.own.property('token')
+    expect(data).to.have.own.property('success')
+    expect(data.success).to.equal(true)
+    expect(data.token).to.not.be.a('null')
+    const logedInUserOptions = {
+      url: `${url}/current`,
       method: 'GET',
-      headers: { authorization: response.token }
+      headers: { authorization: data.token }
     }
-    let response2 = await request(options2)
-    expect(response2).to.be.an('string')
-    response2 = JSON.parse(response2)
-    expect(response2).to.be.an('object')
-    expect(response2.user).to.be.an('object')
-    expect(response2).to.have.nested.property('user._id')
-    expect(response2).to.have.nested.property('user.avatar')
-    expect(response2).to.have.nested.property('user.createdAt')
-    expect(response2).to.have.nested.property('user.updatedAt')
-    expect(response2).to.not.have.nested.property('user.password')
-    expect(response2.user.name).to.equal(name)
-    expect(response2.user.email).to.equal(email)
+    const res = await axios(logedInUserOptions)
+    expect(res).to.have.nested.property('data.user')
+    expect(res.data.user).to.be.an('object')
+    expect(res.data).to.have.nested.property('user._id')
+    expect(res.data).to.have.nested.property('user.avatar')
+    expect(res.data).to.have.nested.property('user.createdAt')
+    expect(res.data).to.have.nested.property('user.updatedAt')
+    expect(res.data).to.not.have.nested.property('user.password')
+    expect(res.data.user.name).to.equal(name)
+    expect(res.data.user.email).to.equal(email)
   })
 })
 
-after(done => {
-  mongoose.connection.dropDatabase(done => {
-    mongoose.connection.close(done)
-  })
-  done()
+after(async () => {
+  await User.findOneAndDelete({ email })
+  await mongoose.connection.close()
 })
