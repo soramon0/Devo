@@ -30,7 +30,7 @@ export const register = async (req, res) => {
     // await sendEmail(email, url)
 
     const registeredUser = removeField(newUser._doc, 'password')
-    res.status(200).json(registeredUser)
+    res.json(registeredUser)
   } catch (err) {
     return errorRespone(err.name, err.message, res)
   }

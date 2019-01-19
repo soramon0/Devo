@@ -1,31 +1,16 @@
-import 'dotenv/config'
-import '@babel/polyfill'
-import '../server'
 import mongoose from 'mongoose'
 import axios from 'axios'
 import { describe, it, after } from 'mocha'
 import { expect } from 'chai'
 import User from '../models/User'
-
-let name = 'kai desu'
-let email = 'kai@gmail.com'
-let password = 'kai12345'
-let url = `http://localhost:${process.env.APP_PORT}/api/user`
-let registerReq = (n, e, p, p2) => `
-{
-  "name": "${n}",
-  "email": "${e}",
-  "password": "${p}",
-  "password2": "${p2}"
-}
-`
-
-let loginReq = (e, p) => `
-  {
-    "email": "${e}",
-    "password": "${p}"
-  }
-`
+import {
+  userUrl,
+  loginReq,
+  registerReq,
+  name,
+  email,
+  password
+} from './helpers'
 
 describe('Test User Controller', () => {
   it('Check if the users collection is empty', async () => {
@@ -38,7 +23,7 @@ describe('Test User Controller', () => {
   it('Return error if json request is invalid', async () => {
     const registerOptions = {
       method: 'post',
-      url: `${url}/register`,
+      url: `${userUrl}/register`,
       headers: { 'content-type': 'application/json' },
       data: `{ name: "email" }`
     }
@@ -58,7 +43,7 @@ describe('Test User Controller', () => {
   it('Return an array of errors if registration inputs were empty', async () => {
     const registerOptions = {
       method: 'post',
-      url: `${url}/register`,
+      url: `${userUrl}/register`,
       headers: { 'content-type': 'application/json' },
       data: ''
     }
@@ -82,7 +67,7 @@ describe('Test User Controller', () => {
   it('Return an array of errors if registration inputs are invalid', async () => {
     const registerOptions = {
       method: 'post',
-      url: `${url}/register`,
+      url: `${userUrl}/register`,
       headers: { 'content-type': 'application/json' },
       data: registerReq('    kai', 'email', 'pass', password)
     }
@@ -106,7 +91,7 @@ describe('Test User Controller', () => {
   it('Register a user in the database through the API', async () => {
     const registerOptions = {
       method: 'post',
-      url: `${url}/register`,
+      url: `${userUrl}/register`,
       headers: { 'content-type': 'application/json' },
       data: registerReq(name, email, password, password)
     }
@@ -129,7 +114,7 @@ describe('Test User Controller', () => {
 
   it('Dubplicate Emails', async () => {
     const registerOptions = {
-      url: `${url}/register`,
+      url: `${userUrl}/register`,
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       data: registerReq(name, email, password, password)
@@ -145,7 +130,7 @@ describe('Test User Controller', () => {
   it('Return an array of errors if login inputs were empty', async () => {
     const loginOptions = {
       method: 'post',
-      url: `${url}/login`,
+      url: `${userUrl}/login`,
       headers: { 'content-type': 'application/json' },
       data: ''
     }
@@ -167,7 +152,7 @@ describe('Test User Controller', () => {
   it('Return an array of errors if login inputs are invalid', async () => {
     const loginOptions = {
       method: 'post',
-      url: `${url}/login`,
+      url: `${userUrl}/login`,
       headers: { 'content-type': 'application/json' },
       data: loginReq('invalidEmail@gmail', '       ')
     }
@@ -185,9 +170,9 @@ describe('Test User Controller', () => {
     }
   })
 
-  it('Login with bad email return error', async () => {
+  it('Login with unregistered email return error', async () => {
     const registerOptions = {
-      url: `${url}/login`,
+      url: `${userUrl}/login`,
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       data: loginReq('asap@gmail.com', password)
@@ -200,9 +185,9 @@ describe('Test User Controller', () => {
     }
   })
 
-  it('Login with a bad password return error', async () => {
+  it('Login with a incorrect password return error', async () => {
     const options = {
-      url: `${url}/login`,
+      url: `${userUrl}/login`,
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       data: loginReq(email, 'password')
@@ -217,7 +202,7 @@ describe('Test User Controller', () => {
 
   it('Login a user and get user info with user token', async () => {
     const loginOptions = {
-      url: `${url}/login`,
+      url: `${userUrl}/login`,
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       data: loginReq(email, password)
@@ -229,7 +214,7 @@ describe('Test User Controller', () => {
     expect(data.success).to.equal(true)
     expect(data.token).to.not.be.a('null')
     const logedInUserOptions = {
-      url: `${url}/current`,
+      url: `${userUrl}/current`,
       method: 'GET',
       headers: { authorization: data.token }
     }
