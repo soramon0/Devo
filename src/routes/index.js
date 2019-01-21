@@ -1,9 +1,6 @@
-import { Router } from 'express'
-const router = Router()
-
-// Home Page
-router.get('/', (_req, res) => {
-  res.json({ message: "Welcome to Devo's API Service" })
-})
-
-export default router
+export default () => {
+  return {
+    '/': { page: '/' },
+    '/404': { page: '/404' }
+  }
+}

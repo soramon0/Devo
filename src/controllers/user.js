@@ -5,9 +5,7 @@ import User from '../models/User'
 import { ensureRegister, ensureLogin } from '../validation'
 import { errorRespone } from '../validation/ErrorHelper'
 import { removeField } from '../utils/removeField'
-// import { sendEmail } from '../utils/sendEmail'
-// import uuid from 'uuid/v4'
-
+import { sendEmail } from '../utils/sendEmail'
 // Handles register
 export const register = async (req, res) => {
   try {
@@ -22,12 +20,25 @@ export const register = async (req, res) => {
     // Register User
     const newUser = await new User({ name, email, password }).save()
 
-    // const token = uuid()
-    // const url = `${req.protocol}://${req.get('host')}${
-    //   req.baseUrl
-    // }/confirm/${token}`
+    const createTokenAndSendEmail = async () => {
+      const payload = { id: newUser.id }
+      let url = ''
+      sign(
+        payload,
+        process.env.secretOrKey,
+        { expiresIn: 3600 * 24 },
+        (err, token) => {
+          if (err) return errorRespone(err.name, err.message, res, 500)
 
-    // await sendEmail(email, url)
+          url = `${req.protocol}://${req.get('host')}${
+            req.baseUrl
+          }/confirm/${token}`
+        }
+      )
+      await sendEmail(email, url)
+    }
+
+    await createTokenAndSendEmail()
 
     const registeredUser = removeField(newUser._doc, 'password')
     res.json(registeredUser)
@@ -56,9 +67,9 @@ export const login = async (req, res) => {
     // User is Valid
 
     // Check if User confirmed their Email
-    // if (!user.isConfirmed) {
-    //   return errorRespone('login', 'Please confirm your email first', res, 400)
-    // }
+    if (!user.isConfirmed) {
+      return errorRespone('login', 'Please confirm your email first', res, 400)
+    }
 
     // Create token payload
     const payload = { id: user.id, name: user.name, avatar: user.avatar }
@@ -69,7 +80,7 @@ export const login = async (req, res) => {
       process.env.secretOrKey,
       { expiresIn: 3600 * 3 },
       (err, token) => {
-        if (err) errorRespone(err.name, err.message, res, 500)
+        if (err) return errorRespone(err.name, err.message, res, 500)
         res.json({ success: true, token: `Bearer ${token}` })
       }
     )

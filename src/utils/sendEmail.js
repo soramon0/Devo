@@ -18,7 +18,7 @@ export const sendEmail = async (email, url) => {
     to: email, // list of receivers
     subject: 'Email Confirmation ✔', // Subject line
     text: 'Hello world?', // plain text body
-    html: `<a href=${url}>Confirm your email</a>`
+    html: `<a href="${url}">Confirm your email</a>`
   }
   const info = await transporter.sendMail(mailOptions)
 
