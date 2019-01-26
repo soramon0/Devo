@@ -1,8 +1,7 @@
 import { Router } from 'express'
 import { authenticateWith } from '../../utils/authStrategy'
-
 // Load User Handles
-import { register, login, current } from '../../controllers/user'
+import { register, login, current, confirmEmail } from '../../controllers/user'
 
 const router = Router()
 
@@ -14,7 +13,7 @@ router.post('/register', register)
 // @route   POST /api/user/confirm/:token
 // @desc    Confirm user email
 // access   Public
-// router.get('/confirm/:token', confirmEmail)
+router.get('/confirm/:token', confirmEmail)
 
 // @route   POST /api/user/login
 // @desc    Logs in a user
